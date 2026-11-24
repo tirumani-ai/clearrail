@@ -45,9 +45,10 @@ def page_texts(doc: Document) -> tuple[list[str], int, int]:
     return texts, made, saved
 
 
-def read_papers(path, use_titles: bool = True) -> list[Paper]:
+def read_papers(path, use_titles: bool = True, case_id: str | None = None) -> list[Paper]:
+    """`case_id` defaults to the file's folder (a case folder in data/); an uploaded file names it instead."""
     doc = read_document(path)
-    case_id = Path(path).parent.name
+    case_id = case_id or Path(path).parent.name
     if doc.fmt == "json":
         form = PaymentInstruction.model_validate(doc.structured).model_dump()
         return [Paper(str(path), case_id, "PAYMENT_INSTRUCTION", "code", 1, 1, json.dumps(doc.structured),

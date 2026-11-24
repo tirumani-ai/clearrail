@@ -1,0 +1,26 @@
+{
+  "payment_id": "PAY-202612004",
+  "submitted_at": "2026-11-15T17:14:00Z",
+  "client_id": "CL-1001",
+  "client_name": "Blue Heron Home Goods Inc",
+  "beneficiary": {
+    "beneficiary_id": "VN-2010",
+    "name": "Pennine Software Services Ltd",
+    "address": "22 Mill Lane, Manchester M1 2AB, UK",
+    "country": "GB",
+    "bank": {
+      "bank_name": "Northern Counties Bank",
+      "bank_country": "GB",
+      "swift": "NCBKGBBB",
+      "iban": "GB48NCBK90139624595711"
+    }
+  },
+  "amount": 17111.4,
+  "currency": "GBP",
+  "purpose_code": "SVC",
+  "invoice_references": [
+    "2010/2026/3666"
+  ],
+  "remittance_info": "INV 2010/2026/3666",
+  "requested_value_date": "2026-11-18"
+}

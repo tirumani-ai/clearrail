@@ -4,3 +4,4 @@
 __pycache__/
 ladder/results.jsonl
 data/cache/
+data/storage/

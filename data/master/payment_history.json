@@ -28,5 +28,15 @@
     "currency": "EUR",
     "status": "RELEASED",
     "released_on": "2026-08-29"
+  },
+  {
+    "payment_id": "PAY-2026-10456",
+    "client_id": "CL-1002",
+    "invoice_number": "2005/2026/3585",
+    "vendor_id": "VN-2005",
+    "amount": 55998.16,
+    "currency": "CNY",
+    "status": "RELEASED",
+    "released_on": "2026-10-23"
   }
 ]

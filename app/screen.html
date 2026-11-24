@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ClearRail payments</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 36 36%27%3E%3Crect width=%2736%27 height=%2736%27 rx=%279%27 fill=%27%232459a6%27/%3E%3Cpath d=%27M7 12.5h22M7 23.5h22%27 stroke=%27%23fff%27 stroke-opacity=%27.45%27 stroke-width=%272%27 stroke-linecap=%27round%27/%3E%3Cpath d=%27M11 18.5l4.5 4.5L26 12.5%27 fill=%27none%27 stroke=%27%23fff%27 stroke-width=%273.2%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E"
+    />
+    <!-- One page, no build step. It calls only the API's own routes (POST/GET /batches, GET /payments,
+     GET /payments/{id}), the same ones curl can call. Uploads return at once; the page polls while workers
+     read and check. Every value from the API is escaped: paper text is data, never markup. -->
+    <style>
+      :root {
+        --bg: #f5f6f8;
+        --card: #fff;
+        --ink: #18212f;
+        --muted: #5d6878;
+        --line: #e2e6ec;
+        --accent: #2459a6;
+        --ok: #17794a;
+        --warn: #a3531b;
+        --bad: #b42318;
+        --pill: #eef1f6;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #11151c;
+          --card: #1a2029;
+          --ink: #e6eaf0;
+          --muted: #98a3b3;
+          --line: #2b3340;
+          --accent: #6f9ee8;
+          --ok: #4cc38a;
+          --warn: #e3a15b;
+          --bad: #f07a70;
+          --pill: #252d39;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          14px/1.5 -apple-system,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+      }
+      header {
+        padding: 18px 16px;
+        border-bottom: 1px solid var(--line);
+        background: var(--card);
+      }
+      header .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      header .logo {
+        flex: none;
+        display: block;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      header h1 span {
+        color: var(--accent);
+      }
+      header p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 18px 16px 60px;
+        display: grid;
+        gap: 16px;
+      }
+      section {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 16px;
+        min-width: 0;
+      }
+      h2 {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin: 0 0 10px;
+      }
+      h3 {
+        font-size: 14px;
+        margin: 16px 0 6px;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      button {
+        background: var(--accent);
+        color: #fff;
+        border: 0;
+        border-radius: 6px;
+        padding: 7px 14px;
+        font: inherit;
+        cursor: pointer;
+      }
+      button.ghost {
+        background: var(--pill);
+        color: var(--ink);
+      }
+      button.ghost[aria-pressed="true"] {
+        outline: 2px solid var(--accent);
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .scroll {
+        overflow-x: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 7px 8px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+      }
+      td.num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      tbody tr {
+        cursor: pointer;
+      }
+      tbody tr:hover,
+      tbody tr.sel {
+        background: var(--pill);
+      }
+      .pill {
+        display: inline-block;
+        background: var(--pill);
+        border-radius: 10px;
+        padding: 0 8px;
+        font-size: 12px;
+        margin: 1px 2px 1px 0;
+      }
+      .clear {
+        color: var(--ok);
+        font-weight: 600;
+      }
+      .needs_review {
+        color: var(--warn);
+        font-weight: 600;
+      }
+      .route-COMPLIANCE_OFFICER {
+        color: var(--bad);
+        font-weight: 600;
+      }
+      ul {
+        margin: 4px 0;
+        padding-left: 18px;
+      }
+      .ok::before {
+        content: "✓ ";
+        color: var(--ok);
+      }
+      .no::before {
+        content: "✗ ";
+        color: var(--bad);
+      }
+      details {
+        margin: 4px 0;
+      }
+      pre {
+        background: var(--pill);
+        padding: 8px;
+        border-radius: 6px;
+        overflow-x: auto;
+        font-size: 12px;
+      }
+      a {
+        color: var(--accent);
+      }
+      .id {
+        white-space: nowrap;
+      }
+      .failed {
+        color: var(--bad);
+        font-weight: 600;
+      }
+      .inflight {
+        color: var(--muted);
+        font-style: italic;
+      }
+      select,
+      input[type="text"] {
+        font: inherit;
+        color: var(--ink);
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 6px 8px;
+      }
+      label.field {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .bar {
+        height: 6px;
+        background: var(--pill);
+        border-radius: 3px;
+        overflow: hidden;
+        min-width: 90px;
+        margin-top: 4px;
+      }
+      .bar > span {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+        transition: width 0.4s;
+      }
+      .prio-urgent {
+        color: var(--bad);
+        font-weight: 600;
+      }
+      #batch-filter:empty {
+        display: none;
+      }
+      @media (min-width: 980px) {
+        main {
+          grid-template-columns: 7fr 5fr;
+          align-items: start;
+        }
+        main > section.wide {
+          grid-column: 1 / -1;
+        }
+        #detail {
+          position: sticky;
+          top: 16px;
+          max-height: calc(100vh - 32px);
+          overflow-y: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <svg
+          class="logo"
+          viewBox="0 0 36 36"
+          width="36"
+          height="36"
+          role="img"
+          aria-label="ClearRail logo"
+        >
+          <rect width="36" height="36" rx="9" fill="var(--accent)" />
+          <path
+            d="M7 12.5h22M7 23.5h22"
+            stroke="#fff"
+            stroke-opacity=".45"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+          <path
+            d="M11 18.5l4.5 4.5L26 12.5"
+            fill="none"
+            stroke="#fff"
+            stroke-width="3.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <h1>Clear<span>Rail</span></h1>
+      </div>
+      <p>Check and route payments, with a human in the loop.</p>
+    </header>
+    <main>
+      <section class="wide">
+        <h2>Upload payments</h2>
+        <form id="upload" class="row" style="align-items: flex-end">
+          <label class="field"
+            >Files: one payment's files, or a .zip of payment folders
+            <input type="file" id="pick-files" multiple />
+          </label>
+          <label class="field"
+            >or a folder of payment folders
+            <input type="file" id="pick-folder" webkitdirectory />
+          </label>
+          <label class="field"
+            >Batch name
+            <input type="text" id="batch-name" placeholder="optional" />
+          </label>
+          <label class="field"
+            >Priority
+            <select id="priority">
+              <option value="urgent">urgent</option>
+              <option value="normal" selected>normal</option>
+              <option value="bulk">bulk</option>
+            </select>
+          </label>
+          <button type="submit">Upload</button>
+        </form>
+        <p id="upload-status" class="muted">
+          Each folder with one payment instruction JSON is one payment. The
+          upload returns at once; workers read and check in the background,
+          urgent work first.
+        </p>
+      </section>
+      <section class="wide">
+        <h2 id="batches-title">Batches</h2>
+        <div class="scroll">
+          <table id="batches">
+            <thead>
+              <tr>
+                <th>Batch</th>
+                <th>Priority</th>
+                <th>Progress</th>
+                <th>Outcome</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <div class="row" style="justify-content: space-between">
+          <h2 id="list-title">Payments</h2>
+          <div class="row" id="filters">
+            <button class="ghost" data-status="" aria-pressed="true">
+              All
+            </button>
+            <button
+              class="ghost"
+              data-status="needs_review"
+              aria-pressed="false"
+            >
+              Needs a person
+            </button>
+            <button class="ghost" data-status="clear" aria-pressed="false">
+              Clear
+            </button>
+            <button
+              class="ghost"
+              data-status="in_progress"
+              aria-pressed="false"
+            >
+              In progress
+            </button>
+            <button class="ghost" data-status="failed" aria-pressed="false">
+              Failed
+            </button>
+          </div>
+        </div>
+        <p id="batch-filter" class="muted"></p>
+        <div class="scroll">
+          <table id="payments">
+            <thead>
+              <tr>
+                <th>Payment</th>
+                <th>Supplier</th>
+                <th class="num">Amount</th>
+                <th>Route and codes</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+      <section id="detail">
+        <h2>Payment</h2>
+        <p class="muted">Pick a payment to see why it went where it did.</p>
+      </section>
+    </main>
+    <script>
+      const esc = (v) =>
+        String(v ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      const money = (v, cur) =>
+        Number(v).toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }) + (cur ? ` ${esc(cur)}` : "");
+      let filter = "",
+        selected = null,
+        batch = null,
+        shownStatus = null;
+      const IN_FLIGHT = ["queued", "reading", "checking"];
+
+      // The route once checked; while in flight, where it is; if failed, say so.
+      const outcome = (p) =>
+        IN_FLIGHT.includes(p.status)
+          ? `<span class="inflight">${esc(p.status)}&hellip;</span>`
+          : p.status === "failed"
+            ? `<span class="failed">FAILED</span>`
+            : `<span class="${esc(p.status)} route-${esc(p.route)}">${esc(p.route)}</span>`;
+
+      async function loadBatches() {
+        const rows = await (await fetch("/batches")).json();
+        document.querySelector("#batches-title").textContent =
+          `Batches (${rows.length})`;
+        const body = document.querySelector("#batches tbody");
+        const c = (b, k) => b.counts[k] || 0;
+        body.innerHTML =
+          rows
+            .map(
+              (b) => `
+    <tr data-id="${esc(b.id)}" class="${b.id === batch ? "sel" : ""}">
+      <td>${esc(b.name)}<br><span class="muted">${new Date(b.created_at).toLocaleString()}</span></td>
+      <td class="prio-${esc(b.priority)}">${esc(b.priority)}</td>
+      <td>${b.done}/${b.total} checked${b.finished ? ` <span class="muted">in ${esc(b.seconds)} s</span>` : ""}
+          <div class="bar"><span style="width:${b.total ? (100 * b.done) / b.total : 0}%"></span></div></td>
+      <td><span class="needs_review">${c(b, "needs_review")}</span> need a person &middot;
+          <span class="clear">${c(b, "clear")}</span> clear${c(b, "failed") ? ` &middot; <span class="failed">${c(b, "failed")} failed</span>` : ""}
+          ${b.in_progress ? ` &middot; <span class="inflight">${b.in_progress} in progress</span>` : ""}</td>
+    </tr>`,
+            )
+            .join("") ||
+          '<tr><td colspan="4" class="muted">No batches yet: upload payments, or run <code>make demo</code>.</td></tr>';
+        body.querySelectorAll("tr[data-id]").forEach(
+          (tr) =>
+            (tr.onclick = () => {
+              batch = batch === tr.dataset.id ? null : tr.dataset.id;
+              loadBatches();
+              loadList();
+            }),
+        );
+        const chosen = rows.find((b) => b.id === batch);
+        document.querySelector("#batch-filter").innerHTML = chosen
+          ? `Showing batch <b>${esc(chosen.name)}</b> only. <a href="#" id="all-batches">Show every batch</a>`
+          : "";
+        const all = document.querySelector("#all-batches");
+        if (all)
+          all.onclick = (e) => {
+            e.preventDefault();
+            batch = null;
+            loadBatches();
+            loadList();
+          };
+        return rows.some((b) => !b.finished);
+      }
+
+      async function loadList() {
+        const q = new URLSearchParams();
+        if (filter) q.set("status", filter);
+        if (batch) q.set("batch_id", batch);
+        const rows = await (await fetch(`/payments?${q}`)).json();
+        document.querySelector("#list-title").textContent =
+          `Payments (${rows.length})`;
+        const body = document.querySelector("#payments tbody");
+        body.innerHTML =
+          rows
+            .map(
+              (p) => `
+    <tr data-id="${esc(p.payment_id)}" class="${p.payment_id === selected ? "sel" : ""}">
+      <td><span class="id">${esc(p.payment_id)}</span><br><span class="muted">${esc(p.client_name)}</span></td>
+      <td>${esc(p.beneficiary_name)}</td>
+      <td class="num">${money(p.amount, p.currency)}<br><span class="muted">USD ${money(p.amount_usd, "")}</span></td>
+      <td>${outcome(p)}<br>${p.codes.map((c) => `<span class="pill">${esc(c)}</span>`).join("")}</td>
+    </tr>`,
+            )
+            .join("") ||
+          '<tr><td colspan="4" class="muted">Nothing yet: upload a payment, or run <code>make demo</code>.</td></tr>';
+        body
+          .querySelectorAll("tr[data-id]")
+          .forEach((tr) => (tr.onclick = () => loadDetail(tr.dataset.id)));
+        return rows;
+      }
+
+      async function loadDetail(id) {
+        selected = id;
+        document
+          .querySelectorAll("#payments tbody tr")
+          .forEach((tr) => tr.classList.toggle("sel", tr.dataset.id === id));
+        const p = await (
+          await fetch(`/payments/${encodeURIComponent(id)}`)
+        ).json();
+        shownStatus = p.status;
+        const list = (items, f) =>
+          items.length
+            ? `<ul>${items.map(f).join("")}</ul>`
+            : '<p class="muted">none</p>';
+        document.querySelector("#detail").innerHTML = `
+    <h2>${esc(p.payment_id)}</h2>
+    ${p.error ? `<p class="failed">${esc(p.error)}</p>` : ""}
+    <p>${outcome(p)} &middot;
+       ${money(p.amount, p.currency)} (USD ${money(p.amount_usd, "")}) &middot; purpose ${esc(p.purpose_code)}<br>
+       <span class="muted">${esc(p.client_name)} (${esc(p.client_id)}) pays ${esc(p.beneficiary_name)} (${esc(p.vendor_id)})</span></p>
+    <h3>What the checks found</h3>
+    ${list(p.issues, (i) => `<li><b>${esc(i.code)}</b>: ${esc(i.message)}</li>`)}
+    <h3>Held for a person before release</h3>
+    ${list(p.held_actions, (a) => `<li>${esc(a)}</li>`)}
+    <h3>How the papers link</h3>
+    ${list(p.links, (l) => `<li class="${l.ok ? "ok" : "no"}">${esc(l.name)} <span class="muted">${esc(l.detail)}</span></li>`)}
+    ${p.hints.length ? `<h3>Hints (weak keys, never used to link)</h3>${list(p.hints, (h) => `<li class="muted">${esc(h)}</li>`)}` : ""}
+    <h3>Files and papers</h3>
+    ${p.documents
+      .map(
+        (d) => `
+      <p><a href="/documents/${esc(d.id)}/file" target="_blank" rel="noopener">${esc(d.filename)}</a>
+         <span class="muted">${esc(d.format)}${d.status !== "read" ? ` &middot; ${esc(d.status)}` : ""}${d.error ? `: ${esc(d.error)}` : ""}</span></p>
+      ${d.papers
+        .map(
+          (
+            x,
+          ) => `<details><summary>${esc(x.kind)} <span class="muted">pages ${x.pages[0]}-${x.pages[1]},
+         named by ${esc(x.kind_by)}, filled by ${esc(x.filled_by)}${x.issues.length ? ", <b>own checks failed</b>" : ""}</span></summary>
+         ${x.issues.length ? list(x.issues, (i) => `<li>${esc(i)}</li>`) : ""}
+         <pre>${esc(JSON.stringify(x.form, null, 2))}</pre></details>`,
+        )
+        .join("")}`,
+      )
+      .join("")}`;
+      }
+
+      document.querySelectorAll("#filters button").forEach(
+        (b) =>
+          (b.onclick = () => {
+            filter = b.dataset.status;
+            document
+              .querySelectorAll("#filters button")
+              .forEach((x) => x.setAttribute("aria-pressed", x === b));
+            loadList();
+          }),
+      );
+
+      document
+        .querySelector("#upload")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const status = document.querySelector("#upload-status");
+          // A picked folder keeps each file's folder in its name: that is how the API tells payments apart.
+          const files = [
+            ...document.querySelector("#pick-files").files,
+          ].map((f) => [f, f.name]);
+          for (const f of document.querySelector("#pick-folder").files)
+            files.push([f, f.webkitRelativePath || f.name]);
+          if (!files.length) {
+            status.textContent = "Choose files, a zip or a folder first.";
+            return;
+          }
+          const form = new FormData();
+          for (const [f, name] of files) form.append("files", f, name);
+          form.append("name", document.querySelector("#batch-name").value);
+          form.append("priority", document.querySelector("#priority").value);
+          status.textContent = `Uploading ${files.length} file(s)...`;
+          const res = await fetch("/batches", { method: "POST", body: form });
+          const body = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            const d = body.detail;
+            status.textContent = `Not accepted (${res.status}): ${typeof d === "string" ? d : d?.message || "see the API logs"}${
+              d?.rejected ? ": " + d.rejected.map((r) => `${r.folder}: ${r.reason}`).join("; ") : ""
+            }`;
+            return;
+          }
+          const parts = [`${body.queued.length} payment(s) queued`];
+          if (body.already_loaded.length)
+            parts.push(`${body.already_loaded.length} already stored (${body.already_loaded.join(", ")})`);
+          if (body.rejected.length)
+            parts.push(`refused: ${body.rejected.map((r) => `${r.folder}: ${r.reason}`).join("; ")}`);
+          status.textContent = parts.join(". ") + ".";
+          e.target.reset();
+          if (body.batch_id) batch = body.batch_id;
+          refresh();
+        });
+
+      // Poll fast while workers are busy, slowly when everything is checked.
+      let timer = null;
+      async function refresh() {
+        clearTimeout(timer);
+        const busy = await loadBatches();
+        const rows = await loadList();
+        // Redraw the open payment only when its status moved, so expanded papers stay open.
+        const open = rows.find((r) => r.payment_id === selected);
+        if (open && open.status !== shownStatus) loadDetail(selected);
+        timer = setTimeout(refresh, busy ? 1500 : 6000);
+      }
+      refresh();
+    </script>
+  </body>
+</html>

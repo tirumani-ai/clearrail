@@ -1,0 +1,26 @@
+{
+  "payment_id": "PAY-202612010",
+  "submitted_at": "2026-11-15T17:56:00Z",
+  "client_id": "CL-1002",
+  "client_name": "Granite Peak Outdoor LLC",
+  "beneficiary": {
+    "beneficiary_id": "VN-2009",
+    "name": "Anatolia Ceramics AS",
+    "address": "Organize Sanayi Bolgesi 3, Kutahya, Turkey",
+    "country": "TR",
+    "bank": {
+      "bank_name": "Bosphorus Trade Bank",
+      "bank_country": "TR",
+      "swift": "BSPTTR3M",
+      "account_number": "721590109281"
+    }
+  },
+  "amount": 40938.68,
+  "currency": "EUR",
+  "purpose_code": "GDI",
+  "invoice_references": [
+    "2009/2026/5701"
+  ],
+  "remittance_info": "INV 2009/2026/5701",
+  "requested_value_date": "2026-11-18"
+}

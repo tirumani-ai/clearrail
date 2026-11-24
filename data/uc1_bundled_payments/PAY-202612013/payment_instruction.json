@@ -1,0 +1,26 @@
+{
+  "payment_id": "PAY-202612013",
+  "submitted_at": "2026-11-16T11:44:00Z",
+  "client_id": "CL-1002",
+  "client_name": "Granite Peak Outdoor LLC",
+  "beneficiary": {
+    "beneficiary_id": "VN-2006",
+    "name": "Talleres Monterrey SA de CV",
+    "address": "Av. Constitucion 1200, Monterrey, NL 64000, Mexico",
+    "country": "MX",
+    "bank": {
+      "bank_name": "Banco Sierra Madre",
+      "bank_country": "MX",
+      "swift": "BSMXMXMM",
+      "clabe": "712768426846563216"
+    }
+  },
+  "amount": 901662.3,
+  "currency": "MXN",
+  "purpose_code": "GDI",
+  "invoice_references": [
+    "2006/2026/3346"
+  ],
+  "remittance_info": "INV 2006/2026/3346",
+  "requested_value_date": "2026-11-18"
+}

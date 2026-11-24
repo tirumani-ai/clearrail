@@ -1,0 +1,26 @@
+{
+  "payment_id": "PAY-202612014",
+  "submitted_at": "2026-11-15T16:25:00Z",
+  "client_id": "CL-1001",
+  "client_name": "Blue Heron Home Goods Inc",
+  "beneficiary": {
+    "beneficiary_id": "VN-2006",
+    "name": "Talleres Monterrey SA de CV",
+    "address": "Av. Constitucion 1200, Monterrey, NL 64000, Mexico",
+    "country": "MX",
+    "bank": {
+      "bank_name": "Banco Sierra Madre",
+      "bank_country": "MX",
+      "swift": "BSMXMXMM",
+      "clabe": "712768426846563216"
+    }
+  },
+  "amount": 3152680.35,
+  "currency": "MXN",
+  "purpose_code": "GDI",
+  "invoice_references": [
+    "2006/2025/7457"
+  ],
+  "remittance_info": "INV 2006/2025/7457",
+  "requested_value_date": "2026-11-18"
+}
