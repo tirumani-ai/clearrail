@@ -7,6 +7,8 @@ from pathlib import Path
 from app.rules.validation import validate
 
 CASES = Path("data/uc1_supplier_payments")
+BUNDLED = Path("data/uc1_bundled_payments")  # the harder set: each payment's papers bundled into one file
+SETS = (CASES, BUNDLED)
 # Four cases that between them hold every format: scans and a text letter, the bundle, a photo, Excel.
 DEMO = ("PAY-202611008", "PAY-202611011", "PAY-202611012", "PAY-202611020")
 
@@ -16,11 +18,13 @@ def flags() -> set[str]:
 
 
 def case_dirs(default: tuple[str, ...] | None = None) -> list[Path]:
-    """Cases named on the command line, else `default`, else all 32."""
+    """Cases named on the command line, else the 15 bundled ones with --bundled, else `default`, else all 32."""
     names = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if not names and "--bundled" in flags():
+        return sorted(BUNDLED.glob("PAY-*"))
     if not names:
         names = list(default) if default else [p.name for p in sorted(CASES.glob("PAY-*"))]
-    return [Path(n) if Path(n).is_dir() else CASES / n for n in names]
+    return [Path(n) if Path(n).is_dir() else next((s / n for s in SETS if (s / n).is_dir()), CASES / n) for n in names]
 
 
 def files(case: Path) -> list[Path]:
@@ -28,7 +32,8 @@ def files(case: Path) -> list[Path]:
 
 
 def answer_key() -> dict[str, dict]:
-    return {row["case_id"]: row for row in json.loads((CASES / "ground_truth.json").read_text())}
+    return {row["case_id"]: row for s in SETS if (s / "ground_truth.json").exists()
+            for row in json.loads((s / "ground_truth.json").read_text())}
 
 
 def pretend(papers: list, which: set[str]) -> list:

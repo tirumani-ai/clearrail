@@ -1,0 +1,920 @@
+[
+  {
+    "case_id": "PAY-202612001",
+    "use_case": "UC1",
+    "scenario": "full_pack",
+    "client_id": "CL-1008",
+    "vendor_id": "VN-2004",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers_scan.pdf",
+        "format": "scanned_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1,
+              2
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              3
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          },
+          {
+            "pages": [
+              4
+            ],
+            "doc_type": "BANK_DETAILS_LETTER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2004/2026/8648",
+      "invoice_date": "2026-10-06",
+      "due_date": "2026-12-05",
+      "invoice_total": 38540.27,
+      "invoice_currency": "USD",
+      "seller": "Ningbo Brightway Housewares Co Ltd",
+      "buyer": "Oakridge Furniture Imports Inc",
+      "invoice_bank_account": "114710497465",
+      "invoice_signatory": "Nadia Becker",
+      "po_number": "PO-1008-84339",
+      "po_total": 38540.27,
+      "contract_number": null,
+      "payment_amount": 38540.27,
+      "payment_currency": "USD",
+      "purpose_code": "GDI",
+      "beneficiary_account": "114710497465",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": "114710497465"
+    },
+    "planted_problem": null,
+    "expected_codes": [],
+    "payment_amount_usd": 38540.27,
+    "expected_route": "AUTO_CLEAR"
+  },
+  {
+    "case_id": "PAY-202612002",
+    "use_case": "UC1",
+    "scenario": "reversed_order",
+    "client_id": "CL-1002",
+    "vendor_id": "VN-2003",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers_scan.pdf",
+        "format": "scanned_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          },
+          {
+            "pages": [
+              2
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2003/2026/1018",
+      "invoice_date": "2026-11-03",
+      "due_date": "2026-12-03",
+      "invoice_total": 4678657.2,
+      "invoice_currency": "INR",
+      "seller": "Nilgiri Spice Exports Pvt Ltd",
+      "buyer": "Granite Peak Outdoor LLC",
+      "invoice_bank_account": "49118625276018",
+      "invoice_signatory": "Omar Brennan",
+      "po_number": "PO-1002-65657",
+      "po_total": 4678657.2,
+      "contract_number": null,
+      "payment_amount": 4678657.2,
+      "payment_currency": "INR",
+      "purpose_code": "GDI",
+      "beneficiary_account": "49118625276018",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": null
+    },
+    "planted_problem": null,
+    "expected_codes": [],
+    "payment_amount_usd": 55566.0,
+    "expected_route": "AUTO_CLEAR"
+  },
+  {
+    "case_id": "PAY-202612003",
+    "use_case": "UC1",
+    "scenario": "text_and_scan_in_one_pdf",
+    "client_id": "CL-1005",
+    "vendor_id": "VN-2005",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers_mixed.pdf",
+        "format": "mixed_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1,
+              2
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              3
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2005/2026/1941",
+      "invoice_date": "2026-10-17",
+      "due_date": "2026-11-16",
+      "invoice_total": 282400.53,
+      "invoice_currency": "CNY",
+      "seller": "Shenzhen Lumen Solar Tech Co Ltd",
+      "buyer": "Copperleaf Kitchenware Ltd",
+      "invoice_bank_account": "752917034236",
+      "invoice_signatory": "Ravi Chen",
+      "po_number": "PO-1005-34103",
+      "po_total": 282400.53,
+      "contract_number": null,
+      "payment_amount": 282400.53,
+      "payment_currency": "CNY",
+      "purpose_code": "GDI",
+      "beneficiary_account": "752917034236",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": null
+    },
+    "planted_problem": null,
+    "expected_codes": [],
+    "payment_amount_usd": 39331.55,
+    "expected_route": "AUTO_CLEAR"
+  },
+  {
+    "case_id": "PAY-202612004",
+    "use_case": "UC1",
+    "scenario": "services_pack",
+    "client_id": "CL-1001",
+    "vendor_id": "VN-2010",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers.pdf",
+        "format": "pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              2
+            ],
+            "doc_type": "SERVICES_CONTRACT"
+          },
+          {
+            "pages": [
+              3
+            ],
+            "doc_type": "BANK_DETAILS_LETTER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2010/2026/3666",
+      "invoice_date": "2026-09-16",
+      "due_date": "2026-10-16",
+      "invoice_total": 17111.4,
+      "invoice_currency": "GBP",
+      "seller": "Pennine Software Services Ltd",
+      "buyer": "Blue Heron Home Goods Inc",
+      "invoice_bank_account": "GB48NCBK90139624595711",
+      "invoice_signatory": "Lakshmi Whitfield",
+      "po_number": null,
+      "po_total": null,
+      "contract_number": "PSS-506",
+      "payment_amount": 17111.4,
+      "payment_currency": "GBP",
+      "purpose_code": "SVC",
+      "beneficiary_account": "GB48NCBK90139624595711",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": "GB48NCBK90139624595711"
+    },
+    "planted_problem": null,
+    "expected_codes": [],
+    "payment_amount_usd": 21660.0,
+    "expected_route": "AUTO_CLEAR"
+  },
+  {
+    "case_id": "PAY-202612005",
+    "use_case": "UC1",
+    "scenario": "cover_sheet_first",
+    "client_id": "CL-1006",
+    "vendor_id": "VN-2003",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers_scan.pdf",
+        "format": "scanned_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1
+            ],
+            "doc_type": "OTHER"
+          },
+          {
+            "pages": [
+              2
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              3
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2003/2026/1173",
+      "invoice_date": "2026-09-13",
+      "due_date": "2026-10-13",
+      "invoice_total": 3082393.6,
+      "invoice_currency": "INR",
+      "seller": "Nilgiri Spice Exports Pvt Ltd",
+      "buyer": "Northwind Auto Parts Inc",
+      "invoice_bank_account": "49118625276018",
+      "invoice_signatory": "Felix Kapoor",
+      "po_number": "PO-1006-55770",
+      "po_total": 3082393.6,
+      "contract_number": null,
+      "payment_amount": 3082393.6,
+      "payment_currency": "INR",
+      "purpose_code": "GDI",
+      "beneficiary_account": "49118625276018",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": null
+    },
+    "planted_problem": null,
+    "expected_codes": [],
+    "payment_amount_usd": 36608.0,
+    "expected_route": "AUTO_CLEAR"
+  },
+  {
+    "case_id": "PAY-202612006",
+    "use_case": "UC1",
+    "scenario": "advance_photo_and_pack",
+    "client_id": "CL-1008",
+    "vendor_id": "VN-2006",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "proforma_photo.png",
+        "doc_type": "PROFORMA_INVOICE",
+        "format": "image"
+      },
+      {
+        "file": "papers_scan.pdf",
+        "format": "scanned_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          },
+          {
+            "pages": [
+              2
+            ],
+            "doc_type": "BANK_DETAILS_LETTER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2006/2026/9572",
+      "invoice_date": "2026-09-20",
+      "due_date": "2026-10-20",
+      "invoice_total": 331581.6,
+      "invoice_currency": "MXN",
+      "seller": "Talleres Monterrey SA de CV",
+      "buyer": "Oakridge Furniture Imports Inc",
+      "invoice_bank_account": "712768426846563216",
+      "invoice_signatory": "Nadia Ramirez",
+      "po_number": "PO-1008-62034",
+      "po_total": 331581.6,
+      "contract_number": null,
+      "payment_amount": 331581.6,
+      "payment_currency": "MXN",
+      "purpose_code": "ADV",
+      "beneficiary_account": "712768426846563216",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": "712768426846563216"
+    },
+    "planted_problem": null,
+    "expected_codes": [],
+    "payment_amount_usd": 17544.0,
+    "expected_route": "AUTO_CLEAR"
+  },
+  {
+    "case_id": "PAY-202612007",
+    "use_case": "UC1",
+    "scenario": "balance_after_advance",
+    "client_id": "CL-1002",
+    "vendor_id": "VN-2005",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers_mixed.pdf",
+        "format": "mixed_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              2
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          },
+          {
+            "pages": [
+              3
+            ],
+            "doc_type": "BANK_DETAILS_LETTER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2005/2026/3585",
+      "invoice_date": "2026-10-18",
+      "due_date": "2026-11-17",
+      "invoice_total": 186660.52,
+      "invoice_currency": "CNY",
+      "seller": "Shenzhen Lumen Solar Tech Co Ltd",
+      "buyer": "Granite Peak Outdoor LLC",
+      "invoice_bank_account": "752917034236",
+      "invoice_signatory": "Carlos Adeyemi",
+      "po_number": "PO-1002-22905",
+      "po_total": 186660.52,
+      "contract_number": null,
+      "payment_amount": 130662.36,
+      "payment_currency": "CNY",
+      "purpose_code": "GDI",
+      "beneficiary_account": "752917034236",
+      "invoice_paid_before": 55998.16,
+      "bank_letter_account": "752917034236"
+    },
+    "planted_problem": null,
+    "expected_codes": [],
+    "payment_amount_usd": 18198.1,
+    "expected_route": "AUTO_CLEAR"
+  },
+  {
+    "case_id": "PAY-202612008",
+    "use_case": "UC1",
+    "scenario": "bank_change_in_pack",
+    "client_id": "CL-1007",
+    "vendor_id": "VN-2007",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers_scan.pdf",
+        "format": "scanned_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              2
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          },
+          {
+            "pages": [
+              3
+            ],
+            "doc_type": "BANK_DETAILS_LETTER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2007/2026/6084",
+      "invoice_date": "2026-09-19",
+      "due_date": "2026-10-19",
+      "invoice_total": 19499.02,
+      "invoice_currency": "EUR",
+      "seller": "Rheinwerk Komponenten GmbH",
+      "buyer": "Sunbeam Solar Systems LLC",
+      "invoice_bank_account": "DE68233079244026859952",
+      "invoice_signatory": "Hannah Iyer",
+      "po_number": "PO-1007-62844",
+      "po_total": 19499.02,
+      "contract_number": null,
+      "payment_amount": 19499.02,
+      "payment_currency": "EUR",
+      "purpose_code": "GDI",
+      "beneficiary_account": "DE04913255701035371169",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": "DE04913255701035371169"
+    },
+    "planted_problem": "BANK_DETAILS_CHANGED",
+    "expected_codes": [
+      "BANK_DETAILS_CHANGED"
+    ],
+    "payment_amount_usd": 21194.59,
+    "expected_route": "PAYMENTS_OPS_ANALYST"
+  },
+  {
+    "case_id": "PAY-202612009",
+    "use_case": "UC1",
+    "scenario": "invoice_scanned_twice",
+    "client_id": "CL-1001",
+    "vendor_id": "VN-2009",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers_scan.pdf",
+        "format": "scanned_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              2
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              3
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2009/2026/6612",
+      "invoice_date": "2026-09-28",
+      "due_date": "2026-10-28",
+      "invoice_total": 13893.84,
+      "invoice_currency": "EUR",
+      "seller": "Anatolia Ceramics AS",
+      "buyer": "Blue Heron Home Goods Inc",
+      "invoice_bank_account": "721590109281",
+      "invoice_signatory": "Jonas Okafor",
+      "po_number": "PO-1001-86661",
+      "po_total": 13893.84,
+      "contract_number": null,
+      "payment_amount": 13893.84,
+      "payment_currency": "EUR",
+      "purpose_code": "GDI",
+      "beneficiary_account": "721590109281",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": null
+    },
+    "planted_problem": "POSSIBLE_DUPLICATE",
+    "expected_codes": [
+      "POSSIBLE_DUPLICATE"
+    ],
+    "payment_amount_usd": 15102.0,
+    "expected_route": "PAYMENTS_OPS_ANALYST"
+  },
+  {
+    "case_id": "PAY-202612010",
+    "use_case": "UC1",
+    "scenario": "injection_on_page_2",
+    "client_id": "CL-1002",
+    "vendor_id": "VN-2009",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers.pdf",
+        "format": "pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1,
+              2
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              3
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2009/2026/5701",
+      "invoice_date": "2026-10-09",
+      "due_date": "2026-12-08",
+      "invoice_total": 40938.68,
+      "invoice_currency": "EUR",
+      "seller": "Anatolia Ceramics AS",
+      "buyer": "Granite Peak Outdoor LLC",
+      "invoice_bank_account": "721590109281",
+      "invoice_signatory": "Lakshmi Rao",
+      "po_number": "PO-1002-59186",
+      "po_total": 40938.68,
+      "contract_number": null,
+      "payment_amount": 40938.68,
+      "payment_currency": "EUR",
+      "purpose_code": "GDI",
+      "beneficiary_account": "721590109281",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": null
+    },
+    "planted_problem": "SUSPICIOUS_CONTENT",
+    "expected_codes": [
+      "SUSPICIOUS_CONTENT"
+    ],
+    "payment_amount_usd": 44498.57,
+    "expected_route": "COMPLIANCE_OFFICER"
+  },
+  {
+    "case_id": "PAY-202612011",
+    "use_case": "UC1",
+    "scenario": "po_short_in_pack",
+    "client_id": "CL-1003",
+    "vendor_id": "VN-2009",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers_mixed.pdf",
+        "format": "mixed_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              2
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2009/2026/9166",
+      "invoice_date": "2026-07-29",
+      "due_date": "2026-09-27",
+      "invoice_total": 3930.24,
+      "invoice_currency": "EUR",
+      "seller": "Anatolia Ceramics AS",
+      "buyer": "Lakeside Medical Supply Co",
+      "invoice_bank_account": "721590109281",
+      "invoice_signatory": "Lena Ramirez",
+      "po_number": "PO-1003-97946",
+      "po_total": 3124.32,
+      "contract_number": null,
+      "payment_amount": 3930.24,
+      "payment_currency": "EUR",
+      "purpose_code": "GDI",
+      "beneficiary_account": "721590109281",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": null
+    },
+    "planted_problem": "PO_MISMATCH",
+    "expected_codes": [
+      "PO_MISMATCH"
+    ],
+    "payment_amount_usd": 4272.0,
+    "expected_route": "PAYMENTS_OPS_ANALYST"
+  },
+  {
+    "case_id": "PAY-202612012",
+    "use_case": "UC1",
+    "scenario": "wrong_po_in_pack",
+    "client_id": "CL-1002",
+    "vendor_id": "VN-2001",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers_scan.pdf",
+        "format": "scanned_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              2
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2001/2026/7349",
+      "invoice_date": "2026-09-03",
+      "due_date": "2026-10-03",
+      "invoice_total": 1384500.6,
+      "invoice_currency": "INR",
+      "seller": "Shakti Textiles Pvt Ltd",
+      "buyer": "Granite Peak Outdoor LLC",
+      "invoice_bank_account": "82462819482199",
+      "invoice_signatory": "Priya Adeyemi",
+      "po_number": "PO-1002-13240",
+      "po_total": 134299.0,
+      "contract_number": null,
+      "payment_amount": 1384500.6,
+      "payment_currency": "INR",
+      "purpose_code": "GDI",
+      "beneficiary_account": "82462819482199",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": null
+    },
+    "planted_problem": "MISSING_SUPPORTING_DOC",
+    "expected_codes": [
+      "MISSING_SUPPORTING_DOC"
+    ],
+    "payment_amount_usd": 16443.0,
+    "expected_route": "PAYMENTS_OPS_ANALYST"
+  },
+  {
+    "case_id": "PAY-202612013",
+    "use_case": "UC1",
+    "scenario": "watchlisted_po_approver",
+    "client_id": "CL-1002",
+    "vendor_id": "VN-2006",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers_scan.pdf",
+        "format": "scanned_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              2
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2006/2026/3346",
+      "invoice_date": "2026-09-14",
+      "due_date": "2026-11-13",
+      "invoice_total": 901662.3,
+      "invoice_currency": "MXN",
+      "seller": "Talleres Monterrey SA de CV",
+      "buyer": "Granite Peak Outdoor LLC",
+      "invoice_bank_account": "712768426846563216",
+      "invoice_signatory": "Yuki Petrova",
+      "po_number": "PO-1002-67178",
+      "po_total": 901662.3,
+      "contract_number": null,
+      "payment_amount": 901662.3,
+      "payment_currency": "MXN",
+      "purpose_code": "GDI",
+      "beneficiary_account": "712768426846563216",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": null
+    },
+    "planted_problem": "SCREENING_HIT",
+    "expected_codes": [
+      "SCREENING_HIT"
+    ],
+    "payment_amount_usd": 47707.0,
+    "expected_route": "COMPLIANCE_OFFICER"
+  },
+  {
+    "case_id": "PAY-202612014",
+    "use_case": "UC1",
+    "scenario": "stale_and_overpaid",
+    "client_id": "CL-1001",
+    "vendor_id": "VN-2006",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers_scan.pdf",
+        "format": "scanned_pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1,
+              2
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              3
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2006/2025/7457",
+      "invoice_date": "2025-09-02",
+      "due_date": "2025-10-02",
+      "invoice_total": 2836424.88,
+      "invoice_currency": "MXN",
+      "seller": "Talleres Monterrey SA de CV",
+      "buyer": "Blue Heron Home Goods Inc",
+      "invoice_bank_account": "712768426846563216",
+      "invoice_signatory": "Sara Chen",
+      "po_number": "PO-1001-51814",
+      "po_total": 2836424.88,
+      "contract_number": null,
+      "payment_amount": 3152680.35,
+      "payment_currency": "MXN",
+      "purpose_code": "GDI",
+      "beneficiary_account": "712768426846563216",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": null
+    },
+    "planted_problem": "STALE_INVOICE",
+    "expected_codes": [
+      "AMOUNT_EXCEEDS_INVOICE",
+      "STALE_INVOICE"
+    ],
+    "payment_amount_usd": 166808.48,
+    "expected_route": "PAYMENTS_OPS_TEAM_LEAD"
+  },
+  {
+    "case_id": "PAY-202612015",
+    "use_case": "UC1",
+    "scenario": "over_team_lead_limit",
+    "client_id": "CL-1001",
+    "vendor_id": "VN-2005",
+    "files": [
+      {
+        "file": "payment_instruction.json",
+        "doc_type": "PAYMENT_INSTRUCTION",
+        "format": "json"
+      },
+      {
+        "file": "papers.pdf",
+        "format": "pdf",
+        "bundle": true,
+        "segments": [
+          {
+            "pages": [
+              1,
+              2
+            ],
+            "doc_type": "COMMERCIAL_INVOICE"
+          },
+          {
+            "pages": [
+              3
+            ],
+            "doc_type": "PURCHASE_ORDER"
+          }
+        ]
+      }
+    ],
+    "expected_fields": {
+      "invoice_number": "2005/2026/3522",
+      "invoice_date": "2026-10-05",
+      "due_date": "2026-11-04",
+      "invoice_total": 7181317.91,
+      "invoice_currency": "CNY",
+      "seller": "Shenzhen Lumen Solar Tech Co Ltd",
+      "buyer": "Blue Heron Home Goods Inc",
+      "invoice_bank_account": "752917034236",
+      "invoice_signatory": "Sara Torres",
+      "po_number": "PO-1001-20442",
+      "po_total": 7181317.91,
+      "contract_number": null,
+      "payment_amount": 7847704.37,
+      "payment_currency": "CNY",
+      "purpose_code": "GDI",
+      "beneficiary_account": "752917034236",
+      "invoice_paid_before": 0.0,
+      "bank_letter_account": null
+    },
+    "planted_problem": "AMOUNT_EXCEEDS_INVOICE",
+    "expected_codes": [
+      "AMOUNT_EXCEEDS_INVOICE"
+    ],
+    "payment_amount_usd": 1092995.04,
+    "expected_route": "COMPLIANCE_OFFICER"
+  }
+]

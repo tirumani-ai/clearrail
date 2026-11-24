@@ -1,0 +1,27 @@
+{
+  "payment_id": "PAY-202612003",
+  "submitted_at": "2026-11-14T17:51:00Z",
+  "client_id": "CL-1005",
+  "client_name": "Copperleaf Kitchenware Ltd",
+  "beneficiary": {
+    "beneficiary_id": "VN-2005",
+    "name": "Shenzhen Lumen Solar Tech Co Ltd",
+    "address": "Bldg 5, Hi-Tech Park, Shenzhen, Guangdong, China",
+    "country": "CN",
+    "bank": {
+      "bank_name": "Eastern Harbour Bank",
+      "bank_country": "CN",
+      "swift": "EHBKCN2X",
+      "account_number": "752917034236",
+      "cnaps": "743957551313"
+    }
+  },
+  "amount": 282400.53,
+  "currency": "CNY",
+  "purpose_code": "GDI",
+  "invoice_references": [
+    "2005/2026/1941"
+  ],
+  "remittance_info": "INV 2005/2026/1941",
+  "requested_value_date": "2026-11-18"
+}

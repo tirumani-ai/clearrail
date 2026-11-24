@@ -1,0 +1,27 @@
+{
+  "payment_id": "PAY-202612002",
+  "submitted_at": "2026-11-14T18:26:00Z",
+  "client_id": "CL-1002",
+  "client_name": "Granite Peak Outdoor LLC",
+  "beneficiary": {
+    "beneficiary_id": "VN-2003",
+    "name": "Nilgiri Spice Exports Pvt Ltd",
+    "address": "8 Spice Market Rd, Kochi, Kerala 682002, India",
+    "country": "IN",
+    "bank": {
+      "bank_name": "Malabar Trade Bank",
+      "bank_country": "IN",
+      "swift": "MLTBINMM",
+      "account_number": "49118625276018",
+      "ifsc": "MLTB0955597"
+    }
+  },
+  "amount": 4678657.2,
+  "currency": "INR",
+  "purpose_code": "GDI",
+  "invoice_references": [
+    "2003/2026/1018"
+  ],
+  "remittance_info": "INV 2003/2026/1018",
+  "requested_value_date": "2026-11-18"
+}

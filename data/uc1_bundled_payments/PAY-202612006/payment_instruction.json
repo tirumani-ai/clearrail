@@ -1,0 +1,26 @@
+{
+  "payment_id": "PAY-202612006",
+  "submitted_at": "2026-11-15T16:20:00Z",
+  "client_id": "CL-1008",
+  "client_name": "Oakridge Furniture Imports Inc",
+  "beneficiary": {
+    "beneficiary_id": "VN-2006",
+    "name": "Talleres Monterrey SA de CV",
+    "address": "Av. Constitucion 1200, Monterrey, NL 64000, Mexico",
+    "country": "MX",
+    "bank": {
+      "bank_name": "Banco Sierra Madre",
+      "bank_country": "MX",
+      "swift": "BSMXMXMM",
+      "clabe": "712768426846563216"
+    }
+  },
+  "amount": 331581.6,
+  "currency": "MXN",
+  "purpose_code": "ADV",
+  "invoice_references": [
+    "2006/2026/9572"
+  ],
+  "remittance_info": "INV 2006/2026/9572",
+  "requested_value_date": "2026-11-18"
+}

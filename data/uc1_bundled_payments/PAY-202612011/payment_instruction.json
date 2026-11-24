@@ -1,0 +1,26 @@
+{
+  "payment_id": "PAY-202612011",
+  "submitted_at": "2026-11-16T12:40:00Z",
+  "client_id": "CL-1003",
+  "client_name": "Lakeside Medical Supply Co",
+  "beneficiary": {
+    "beneficiary_id": "VN-2009",
+    "name": "Anatolia Ceramics AS",
+    "address": "Organize Sanayi Bolgesi 3, Kutahya, Turkey",
+    "country": "TR",
+    "bank": {
+      "bank_name": "Bosphorus Trade Bank",
+      "bank_country": "TR",
+      "swift": "BSPTTR3M",
+      "account_number": "721590109281"
+    }
+  },
+  "amount": 3930.24,
+  "currency": "EUR",
+  "purpose_code": "GDI",
+  "invoice_references": [
+    "2009/2026/9166"
+  ],
+  "remittance_info": "INV 2009/2026/9166",
+  "requested_value_date": "2026-11-18"
+}

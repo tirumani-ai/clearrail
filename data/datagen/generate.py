@@ -14,6 +14,8 @@ Usage:
     python generate.py                       # writes into data/ (the folder this script sits in)
     python generate.py --out /tmp/x --seed 7 --payments 60
 
+UC1 has a second, harder set in uc1_bundled_payments/: the papers arrive bundled into one file.
+
 Writes seven use-case folders, shared master data and ground_truth.json files
 that the evaluation script can score against. Each use case draws from its own
 random stream (seed + use case), so changing one use case's generator leaves
@@ -254,57 +256,77 @@ def save_xlsx(wb: Workbook, path: Path) -> None:
 def render_pdf(path: Path, pages: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     c = canvas.Canvas(str(path), pagesize=A4, invariant=1)
-    w, h = A4
     for doc in pages:
-        y = h - 22 * mm
-        c.setFont("Helvetica-Bold", 15)
-        c.drawString(18 * mm, y, doc["title"])
-        if doc.get("issuer"):
-            c.setFont("Helvetica", 9)
-            c.drawRightString(w - 18 * mm, y, doc["issuer"])
-        y -= 10 * mm
-        c.setFont("Helvetica", 9.5)
-        for label, value in doc.get("fields", []):
-            c.setFont("Helvetica-Bold", 9.5)
-            c.drawString(18 * mm, y, f"{label}:")
-            c.setFont("Helvetica", 9.5)
-            c.drawString(62 * mm, y, str(value))
-            y -= 5.6 * mm
-        table = doc.get("table")
-        if table:
-            y -= 4 * mm
-            cols = table["cols"]
-            xs = table.get("x", [18 + i * (174 / len(cols)) for i in range(len(cols))])
-            c.setFont("Helvetica-Bold", 8.8)
-            for x, col in zip(xs, cols):
-                c.drawString(x * mm, y, col)
-            c.line(18 * mm, y - 1.8 * mm, w - 18 * mm, y - 1.8 * mm)
-            y -= 6 * mm
-            c.setFont("Helvetica", 8.8)
-            for row in table["rows"]:
-                for x, cell in zip(xs, row):
-                    c.drawString(x * mm, y, str(cell))
-                y -= 5.2 * mm
-            c.line(18 * mm, y + 2.6 * mm, w - 18 * mm, y + 2.6 * mm)
-            y -= 2 * mm
-        for label, value in doc.get("totals", []):
-            c.setFont("Helvetica-Bold", 10)
-            c.drawRightString(150 * mm, y, f"{label}:")
-            c.drawRightString(w - 18 * mm, y, str(value))
-            y -= 6 * mm
-        y -= 4 * mm
-        c.setFont("Helvetica", 8.5)
-        for line in doc.get("notes", []):
-            c.drawString(18 * mm, y, line)
-            y -= 4.8 * mm
-        foot = doc.get("footer")
-        if foot:
-            c.setFont("Helvetica", 6.5)
-            c.setFillGray(0.55)
-            c.drawString(18 * mm, 12 * mm, foot)
-            c.setFillGray(0)
-        c.showPage()
+        _draw_pdf_page(c, doc)
     c.save()
+
+
+def render_mixed_pdf(path: Path, pages: list[tuple[dict, bool]]) -> None:
+    """One PDF, some pages text and some pages a scanned picture (a client scanned part of the pack)."""
+    from reportlab.lib.utils import ImageReader
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    c = canvas.Canvas(str(path), pagesize=A4, invariant=1)
+    w, h = A4
+    for doc, scanned in pages:
+        if scanned:
+            c.drawImage(ImageReader(scanify(render_image(doc)).convert("RGB")), 0, 0, width=w, height=h)
+            c.showPage()
+        else:
+            _draw_pdf_page(c, doc)
+    c.save()
+
+
+def _draw_pdf_page(c: canvas.Canvas, doc: dict) -> None:
+    w, h = A4
+    y = h - 22 * mm
+    c.setFont("Helvetica-Bold", 15)
+    c.drawString(18 * mm, y, doc["title"])
+    if doc.get("issuer"):
+        c.setFont("Helvetica", 9)
+        c.drawRightString(w - 18 * mm, y, doc["issuer"])
+    y -= 10 * mm
+    c.setFont("Helvetica", 9.5)
+    for label, value in doc.get("fields", []):
+        c.setFont("Helvetica-Bold", 9.5)
+        c.drawString(18 * mm, y, f"{label}:")
+        c.setFont("Helvetica", 9.5)
+        c.drawString(62 * mm, y, str(value))
+        y -= 5.6 * mm
+    table = doc.get("table")
+    if table:
+        y -= 4 * mm
+        cols = table["cols"]
+        xs = table.get("x", [18 + i * (174 / len(cols)) for i in range(len(cols))])
+        c.setFont("Helvetica-Bold", 8.8)
+        for x, col in zip(xs, cols):
+            c.drawString(x * mm, y, col)
+        c.line(18 * mm, y - 1.8 * mm, w - 18 * mm, y - 1.8 * mm)
+        y -= 6 * mm
+        c.setFont("Helvetica", 8.8)
+        for row in table["rows"]:
+            for x, cell in zip(xs, row):
+                c.drawString(x * mm, y, str(cell))
+            y -= 5.2 * mm
+        c.line(18 * mm, y + 2.6 * mm, w - 18 * mm, y + 2.6 * mm)
+        y -= 2 * mm
+    for label, value in doc.get("totals", []):
+        c.setFont("Helvetica-Bold", 10)
+        c.drawRightString(150 * mm, y, f"{label}:")
+        c.drawRightString(w - 18 * mm, y, str(value))
+        y -= 6 * mm
+    y -= 4 * mm
+    c.setFont("Helvetica", 8.5)
+    for line in doc.get("notes", []):
+        c.drawString(18 * mm, y, line)
+        y -= 4.8 * mm
+    foot = doc.get("footer")
+    if foot:
+        c.setFont("Helvetica", 6.5)
+        c.setFillGray(0.55)
+        c.drawString(18 * mm, 12 * mm, foot)
+        c.setFillGray(0)
+    c.showPage()
 
 
 def _font(size: int, bold: bool = False):
@@ -818,6 +840,237 @@ def uc1(out: Path, master: dict, n: int) -> None:
             "payment_amount_usd": amount_usd, "expected_route": payments_route(codes, amount_usd, UC1_COMPLIANCE),
         })
     dump(out / "master" / "payment_history.json", history)
+    dump(base / "ground_truth.json", truth)
+
+
+# --------------------------------------------------------------------------
+# Use case 1, bundled: the same payments, sent the way a busy client sends them
+# --------------------------------------------------------------------------
+# Same suppliers, clients, master data and checks as uc1(), but the papers arrive bundled: several papers in
+# one file, an invoice that runs onto a second page, papers out of order, a cover sheet with no title, text and
+# scanned pages in one PDF, a paper that belongs to another payment, problems hidden inside a pack, and more than
+# one problem at once. Its own folder, answer key, payment ids (PAY-2026120xx) and random stream, so the 32
+# cases above are unchanged. It only ever ADDS rows to payment_history.json.
+#
+# papers, in file order: invoice (one page), invoice2 (runs onto a continuation page with no title),
+# invoice_copy (the same invoice scanned again), po, other_po (an order for something else), contract,
+# letter (confirms the saved account, or announces the new one when BANK_DETAILS_CHANGED), cover (a
+# transmittal sheet with no title code knows). layout: scan = every page a picture; pdf = every page text;
+# mixed = text, except the papers named in `scanned`.
+UC1B_CASES = [
+    ("full_pack", {"layout": "scan", "papers": ["invoice2", "po", "letter"]}),
+    ("reversed_order", {"layout": "scan", "papers": ["po", "invoice"]}),
+    ("text_and_scan_in_one_pdf", {"layout": "mixed", "papers": ["invoice2", "po"], "scanned": {"po"}}),
+    ("services_pack", {"kind": "services", "layout": "pdf", "papers": ["invoice", "contract", "letter"]}),
+    ("cover_sheet_first", {"layout": "scan", "papers": ["cover", "invoice", "po"]}),
+    ("advance_photo_and_pack", {"kind": "advance", "layout": "scan", "papers": ["po", "letter"], "photo_invoice": True}),
+    ("balance_after_advance", {"layout": "mixed", "papers": ["invoice", "po", "letter"], "scanned": {"po", "letter"},
+                               "partial": True}),
+    ("bank_change_in_pack", {"layout": "scan", "papers": ["invoice", "po", "letter"],
+                             "problems": ["BANK_DETAILS_CHANGED"]}),
+    ("invoice_scanned_twice", {"layout": "scan", "papers": ["invoice", "invoice_copy", "po"],
+                               "problems": ["POSSIBLE_DUPLICATE"]}),
+    ("injection_on_page_2", {"layout": "pdf", "papers": ["invoice2", "po"], "problems": ["SUSPICIOUS_CONTENT"]}),
+    ("po_short_in_pack", {"layout": "mixed", "papers": ["invoice", "po"], "scanned": {"po"}, "problems": ["PO_MISMATCH"]}),
+    ("wrong_po_in_pack", {"layout": "scan", "papers": ["invoice", "other_po"], "problems": ["MISSING_SUPPORTING_DOC"]}),
+    ("watchlisted_po_approver", {"layout": "scan", "papers": ["invoice", "po"], "problems": ["SCREENING_HIT"]}),
+    ("stale_and_overpaid", {"layout": "scan", "papers": ["invoice2", "po"], "target_usd": 150000,
+                            "problems": ["STALE_INVOICE", "AMOUNT_EXCEEDS_INVOICE"]}),
+    ("over_team_lead_limit", {"layout": "pdf", "papers": ["invoice2", "po"], "target_usd": 1000000,
+                              "problems": ["AMOUNT_EXCEEDS_INVOICE"]}),
+]
+UC1B_FIRST_PAGE_ROWS = 18  # an invoice2 puts this many lines on page 1 and the rest on its continuation page
+
+
+def uc1b_route(codes: set[str], amount_usd: float) -> str:
+    """The UC1 route including the team lead's USD 1M limit, above which only compliance may approve."""
+    if not codes:
+        return "AUTO_CLEAR"
+    if codes & UC1_COMPLIANCE or amount_usd > 1000000:
+        return "COMPLIANCE_OFFICER"
+    return "PAYMENTS_OPS_TEAM_LEAD" if amount_usd > 100000 else "PAYMENTS_OPS_ANALYST"
+
+
+def many_goods_lines(sid: str, cur: str, n: int, target_usd: float) -> list[dict]:
+    """n order lines, each a numbered SKU of one of the supplier's goods, scaled to land near target_usd."""
+    picks = [GOODS[sid][j % len(GOODS[sid])] for j in range(n)]
+    prices = [round(usd * FX_TO[cur] * rng.uniform(0.9, 1.1), 2) for _, _, usd in picks]
+    qtys = [rng.randint(5, 60) for _ in picks]
+    scale = target_usd * FX_TO[cur] / sum(q * p for q, p in zip(qtys, prices))
+    lines = []
+    for j, ((desc, unit, _), price, q) in enumerate(zip(picks, prices, qtys)):
+        q = max(1, round(q * scale))
+        lines.append({"description": f"SKU {sid[-2:]}{j + 1:03d} {desc}"[:42], "qty": q, "unit": unit,
+                      "unit_price": price, "amount": round(q * price, 2)})
+    return lines
+
+
+def invoice_pages(inv: dict, sup: dict, buyer: dict, page2_note: str | None = None) -> list[dict]:
+    """An invoice too long for one page: page 1 has the title, page 2 is a continuation sheet with no title."""
+    doc = invoice_doc(inv, sup, buyer)
+    rows = doc["table"]["rows"]
+    first = dict(doc, table=dict(doc["table"], rows=rows[:UC1B_FIRST_PAGE_ROWS]), totals=[],
+                 notes=["Continued on page 2"])
+    second = {"title": "Page 2 of 2", "issuer": sup["legal_name"],
+              "fields": [("Invoice No", inv["number"]), ("Invoice Date", inv["date"])],
+              "table": dict(doc["table"], rows=rows[UC1B_FIRST_PAGE_ROWS:]), "totals": doc["totals"],
+              "notes": doc["notes"] + ([page2_note] if page2_note else [])}
+    return [first, second]
+
+
+def cover_doc(cli: dict, pid: str, pages: int) -> dict:
+    return {"title": "DOCUMENT TRANSMITTAL", "issuer": cli["legal_name"],
+            "fields": [("To", f"{PROVIDER}, Payment Operations"), ("From", f"{cli['legal_name']}, Accounts Payable"),
+                       ("Date", iso(TODAY)), ("Re", f"Supplier payment {pid}"),
+                       ("Pages", f"{pages} including this sheet")],
+            "notes": ["Please find the supporting papers for the payment above attached.",
+                      "Contact our accounts payable team with any questions."]}
+
+
+def uc1_bundled(out: Path, master: dict, n: int) -> None:
+    base = out / "uc1_bundled_payments"
+    clients = master["clients"]
+    sups = {s["vendor_id"]: s for s in master["beneficiaries"]}
+    history_path = out / "master" / "payment_history.json"
+    history = json.loads(history_path.read_text()) if history_path.exists() else []
+    used = {(r["vendor_id"], r["invoice_number"]) for r in history}
+    truth = []
+    for i, (name, v) in enumerate(UC1B_CASES[:n]):
+        pid = f"PAY-{2026_12_000 + i + 1}"
+        problems = v.get("problems", [])
+        kind = v.get("kind", "goods")
+        services, proforma = kind == "services", kind == "advance"
+        sid = rng.choice(sorted(SERVICE_SUPPLIERS) if services else sorted(GOODS))
+        sup, cli = sups[sid], rng.choice(clients)
+        cur = sup["invoice_currency"]
+        inv_date = TODAY - timedelta(days=rng.randint(400, 520) if "STALE_INVOICE" in problems else rng.randint(10, 120))
+        long_invoice = "invoice2" in v["papers"]
+        if services:
+            lines = service_lines(sid, cur, v.get("target_usd"))
+        elif long_invoice:
+            lines = many_goods_lines(sid, cur, rng.randint(24, 30), v.get("target_usd") or rng.uniform(30000, 90000))
+        else:
+            lines = goods_lines(sid, cur, v.get("target_usd"))
+        total = round(sum(ln["amount"] for ln in lines), 2)
+        partial = v.get("partial", False)
+        terms = "100% advance" if proforma else "30% advance, 70% on delivery" if partial else rng.choice(["Net 30", "Net 60"])
+        number = f"{sid[-4:]}/{inv_date.year}/{rng.randint(1000, 9999)}"
+        while (sid, number) in used:  # never collide with an invoice already in the payment history
+            number = f"{sid[-4:]}/{inv_date.year}/{rng.randint(1000, 9999)}"
+        used.add((sid, number))
+        inv = {"number": number, "date": iso(inv_date),
+               "due_date": iso(inv_date + timedelta(days=60 if terms == "Net 60" else 30)), "currency": cur,
+               "lines": lines, "total": total, "proforma": proforma, "services": services, "terms": terms,
+               "bank": dict(sup["bank"]), "signatory": person(), "po_ref": None}
+        po = other_po = contract = None
+        if services:
+            contract = {"number": f"PSS-{rng.randint(100, 999)}", "currency": cur, "value": round(total * 4, 2),
+                        "date": iso(inv_date - timedelta(days=rng.randint(60, 300))), "scope": SERVICES[sid],
+                        "signatory": person(), "client_signatory": person()}
+            inv["po_ref"] = contract["number"]
+        else:
+            po = {"number": f"PO-{cli['client_id'][-4:]}-{rng.randint(10000, 99999)}", "currency": cur,
+                  "date": iso(inv_date - timedelta(days=rng.randint(5, 40))), "lines": [dict(ln) for ln in lines],
+                  "approver": rng.choice(WATCHLIST["people"]) if "SCREENING_HIT" in problems else person()}
+            if "PO_MISMATCH" in problems:  # the supplier invoiced more than was ordered
+                for ln in po["lines"]:
+                    ln["qty"] = max(1, int(ln["qty"] * 0.8))
+                    ln["amount"] = round(ln["qty"] * ln["unit_price"], 2)
+            po["total"] = round(sum(ln["amount"] for ln in po["lines"]), 2)
+            inv["po_ref"] = po["number"]
+            if "other_po" in v["papers"]:  # the client attached the order for a different shipment
+                other_lines = goods_lines(sid, cur)
+                other_po = {"number": f"PO-{cli['client_id'][-4:]}-{rng.randint(10000, 99999)}", "currency": cur,
+                            "date": iso(inv_date - timedelta(days=rng.randint(45, 90))), "lines": other_lines,
+                            "approver": person(), "total": round(sum(ln["amount"] for ln in other_lines), 2)}
+        purpose = "SVC" if services else ("ADV" if proforma else "GDI")
+        amount, paid_before = total, 0.0
+        if partial:  # an earlier 30% advance on the same invoice was already released
+            paid_before = round(total * 0.3, 2)
+            history.append({"payment_id": f"PAY-2026-10{rng.randint(100, 999)}", "client_id": cli["client_id"],
+                            "invoice_number": inv["number"], "vendor_id": sid, "amount": paid_before,
+                            "currency": cur, "status": "RELEASED", "released_on": iso(inv_date + timedelta(days=5))})
+            amount = round(total - paid_before, 2)
+        if "AMOUNT_EXCEEDS_INVOICE" in problems:
+            amount = round(total * rng.uniform(1.06, 1.12), 2)
+        ben_bank = changed_bank(sup["bank"]) if "BANK_DETAILS_CHANGED" in problems else dict(sup["bank"])
+        amount_usd = round(amount / FX_TO[cur], 2)
+        codes = set(problems)
+        route = uc1b_route(codes, amount_usd)
+        if name == "over_team_lead_limit":
+            assert amount_usd > 1000000 and route == "COMPLIANCE_OFFICER", amount_usd
+        if name == "stale_and_overpaid":
+            assert 100000 < amount_usd <= 1000000, amount_usd
+
+        folder = base / pid
+        dump(folder / "payment_instruction.json", {
+            "payment_id": pid,
+            "submitted_at": f"{iso(TODAY - timedelta(days=rng.randint(0, 3)))}T{rng.randint(8, 18):02d}:{rng.randint(0, 59):02d}:00Z",
+            "client_id": cli["client_id"], "client_name": cli["legal_name"],
+            "beneficiary": {"beneficiary_id": sid, "name": sup["legal_name"], "address": sup["address"],
+                            "country": sup["country"], "bank": ben_bank},
+            "amount": amount, "currency": cur, "purpose_code": purpose,
+            "invoice_references": [inv["number"]], "remittance_info": f"INV {inv['number']}",
+            "requested_value_date": iso(TODAY + timedelta(days=2)),
+        })
+        files = [{"file": "payment_instruction.json", "doc_type": "PAYMENT_INSTRUCTION", "format": "json"}]
+        inv_type = "PROFORMA_INVOICE" if proforma else "COMMERCIAL_INVOICE"
+        if v.get("photo_invoice"):
+            render_png(folder / "proforma_photo.png", invoice_doc(inv, sup, cli), phone_photo=True)
+            files.append({"file": "proforma_photo.png", "doc_type": inv_type, "format": "image"})
+
+        injection = INJECTION if "SUSPICIOUS_CONTENT" in problems else None
+        letter = bank_letter_doc(sup, cli, ben_bank, "BANK_DETAILS_CHANGED" in problems, person(),
+                                 TODAY - timedelta(days=rng.randint(2, 20)))
+        papers = {  # each paper: (doc_type, its pages)
+            "invoice": (inv_type, [invoice_doc(inv, sup, cli, injection)]),
+            "invoice2": (inv_type, invoice_pages(inv, sup, cli, injection)),
+            "invoice_copy": (inv_type, [invoice_doc(inv, sup, cli)]),
+            "po": ("PURCHASE_ORDER", [po_doc(po, cli, sup)] if po else []),
+            "other_po": ("PURCHASE_ORDER", [po_doc(other_po, cli, sup)] if other_po else []),
+            "contract": ("SERVICES_CONTRACT", [contract_doc(contract, sup, cli)] if contract else []),
+            "letter": ("BANK_DETAILS_LETTER", [letter]),
+        }
+        total_pages = sum(len(papers[p][1]) for p in v["papers"] if p != "cover") + 1
+        papers["cover"] = ("OTHER", [cover_doc(cli, pid, total_pages)])
+        pages, segments = [], []
+        for p in v["papers"]:
+            doc_type, docs = papers[p]
+            segments.append({"pages": list(range(len(pages) + 1, len(pages) + len(docs) + 1)), "doc_type": doc_type})
+            pages += [(d, v["layout"] == "scan" or p in v.get("scanned", set())) for d in docs]
+        layout = v["layout"]
+        if layout == "scan":
+            fname, fmt = "papers_scan.pdf", "scanned_pdf"
+            render_scan_pdf(folder / fname, [d for d, _ in pages])
+        elif layout == "pdf":
+            fname, fmt = "papers.pdf", "pdf"
+            render_pdf(folder / fname, [d for d, _ in pages])
+        else:
+            fname, fmt = "papers_mixed.pdf", "mixed_pdf"
+            render_mixed_pdf(folder / fname, pages)
+        files.append({"file": fname, "format": fmt, "bundle": True, "segments": segments})
+
+        letter_in = "letter" in v["papers"]
+        po_paper = po if "po" in v["papers"] else other_po if "other_po" in v["papers"] else None
+        truth.append({
+            "case_id": pid, "use_case": "UC1", "scenario": name, "client_id": cli["client_id"], "vendor_id": sid,
+            "files": files,
+            "expected_fields": {
+                "invoice_number": inv["number"], "invoice_date": inv["date"], "due_date": inv["due_date"],
+                "invoice_total": total, "invoice_currency": cur, "seller": sup["legal_name"],
+                "buyer": cli["legal_name"], "invoice_bank_account": account_id(inv["bank"]),
+                "invoice_signatory": inv["signatory"],
+                # the PO paper in the case, as printed (in wrong_po_in_pack it is the other order's)
+                "po_number": po_paper["number"] if po_paper else None,
+                "po_total": po_paper["total"] if po_paper else None,
+                "contract_number": contract["number"] if contract else None,
+                "payment_amount": amount, "payment_currency": cur, "purpose_code": purpose,
+                "beneficiary_account": account_id(ben_bank), "invoice_paid_before": paid_before,
+                "bank_letter_account": account_id(ben_bank) if letter_in else None},
+            "planted_problem": problems[0] if problems else None, "expected_codes": sorted(codes),
+            "payment_amount_usd": amount_usd, "expected_route": route,
+        })
+    dump(history_path, history)
     dump(base / "ground_truth.json", truth)
 
 
@@ -1799,7 +2052,7 @@ def main() -> None:
     a = ap.parse_args()
     out = Path(a.out)
     # remove only what this script writes, never the folder itself (this script may live inside it)
-    for name in ["master", "uc1_payment_documents", "uc1_supplier_payments", "uc2_kyb_onboarding",
+    for name in ["master", "uc1_payment_documents", "uc1_supplier_payments", "uc1_bundled_payments", "uc2_kyb_onboarding",
                  "uc3_incoming_funds", "uc4_bulk_payee_files", "uc5_corridor_payments", "uc6_fx_drawdowns",
                  "uc7_tuition_payments"]:
         shutil.rmtree(out / name, ignore_errors=True)
@@ -1811,7 +2064,11 @@ def main() -> None:
              (uc4, a.rows),
              (uc5, max(a.corridor_payments, len(UC5_PROBLEMS) + len(UC5_COVERAGE))),
              (uc6, max(a.drawdowns, len(UC6_PROBLEMS) + len(UC6_COVERAGE))),
-             (uc7, max(a.tuition, len(UC7_PROBLEMS) + len(UC7_COVERAGE)))]
+             (uc7, max(a.tuition, len(UC7_PROBLEMS) + len(UC7_COVERAGE))),
+             # Last, for two reasons: it adds to the payment history uc1 wrote, and Pillow's scan noise
+             # (Image.effect_noise in scanify) draws from C's process-wide rand(), not from rng, so any scan
+             # made before another use case would change that use case's scans.
+             (uc1_bundled, len(UC1B_CASES))]
     for fn, n in steps:
         rng.seed(f"{a.seed}:{fn.__name__}")  # own stream per use case
         fn(out, master, n)

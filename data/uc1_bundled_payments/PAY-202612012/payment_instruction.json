@@ -1,0 +1,27 @@
+{
+  "payment_id": "PAY-202612012",
+  "submitted_at": "2026-11-13T13:31:00Z",
+  "client_id": "CL-1002",
+  "client_name": "Granite Peak Outdoor LLC",
+  "beneficiary": {
+    "beneficiary_id": "VN-2001",
+    "name": "Shakti Textiles Pvt Ltd",
+    "address": "Plot 22, Ring Road, Surat, Gujarat 395002, India",
+    "country": "IN",
+    "bank": {
+      "bank_name": "Deccan Commerce Bank",
+      "bank_country": "IN",
+      "swift": "DCBKIN2X",
+      "account_number": "82462819482199",
+      "ifsc": "DCBK0351819"
+    }
+  },
+  "amount": 1384500.6,
+  "currency": "INR",
+  "purpose_code": "GDI",
+  "invoice_references": [
+    "2001/2026/7349"
+  ],
+  "remittance_info": "INV 2001/2026/7349",
+  "requested_value_date": "2026-11-18"
+}

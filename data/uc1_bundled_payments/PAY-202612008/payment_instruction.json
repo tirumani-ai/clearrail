@@ -1,0 +1,26 @@
+{
+  "payment_id": "PAY-202612008",
+  "submitted_at": "2026-11-16T08:37:00Z",
+  "client_id": "CL-1007",
+  "client_name": "Sunbeam Solar Systems LLC",
+  "beneficiary": {
+    "beneficiary_id": "VN-2007",
+    "name": "Rheinwerk Komponenten GmbH",
+    "address": "Industriestrasse 9, 50667 Koeln, Germany",
+    "country": "DE",
+    "bank": {
+      "bank_name": "Rheinland Handelsbank",
+      "bank_country": "DE",
+      "swift": "RHHBDE3M",
+      "iban": "DE04913255701035371169"
+    }
+  },
+  "amount": 19499.02,
+  "currency": "EUR",
+  "purpose_code": "GDI",
+  "invoice_references": [
+    "2007/2026/6084"
+  ],
+  "remittance_info": "INV 2007/2026/6084",
+  "requested_value_date": "2026-11-18"
+}
