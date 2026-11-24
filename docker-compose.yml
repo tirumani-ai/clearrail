@@ -1,0 +1,70 @@
+# ClearRail's stack: Postgres, Redis, the API (which also serves the screen) and two worker pools.
+#   make up      build and start everything       make demo   upload the 32 UC1 payments as one batch
+#   make logs    watch the workers                make down   stop;  make reset  stop and delete the database
+#
+# Every service runs the same lab image as ./run.sh, with the code mounted. The API reloads a saved edit by
+# itself; the workers do not (`make restart-workers`). Ports 5434 and 8020 stay clear of other local stacks.
+name: clearrail
+
+x-app: &app
+  build: .
+  image: clearrail:lab
+  env_file: .env
+  environment:
+    DATABASE_URL: postgresql+psycopg://clearrail:clearrail@postgres:5432/clearrail
+    REDIS_URL: redis://redis:6379/0
+    VISIBILITY_TIMEOUT: "60"  # seconds before a dead worker's task goes to another; see app/workers/celery_app.py
+    PYTHONPATH: /app
+  volumes: [".:/app"]
+  working_dir: /app
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_healthy }
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: clearrail
+      POSTGRES_PASSWORD: clearrail  # a local lab database only; the cloud step takes it from a secret store
+      POSTGRES_DB: clearrail
+    ports: ["5434:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clearrail"]
+      interval: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      retries: 20
+
+  api:
+    <<: *app
+    command: ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "app"]
+    ports: ["8020:8000"]
+
+  # Reads files: the model is called here, so it is the pool to grow. Threads, because a read mostly waits
+  # on the model. Each thread takes one task at a time, urgent first.
+  worker-reader:
+    <<: *app
+    environment:
+      DATABASE_URL: postgresql+psycopg://clearrail:clearrail@postgres:5432/clearrail
+      REDIS_URL: redis://redis:6379/0
+      VISIBILITY_TIMEOUT: "60"
+      PYTHONPATH: /app
+      DEMO_READ_DELAY: ${DEMO_READ_DELAY:-0}  # make kill-demo sets it, to slow reads down enough to watch
+    command: ["celery", "-A", "app.workers.celery_app", "worker", "-n", "reader@%h",
+              "-Q", "read.urgent,read.normal,read.bulk", "--pool", "threads", "-c", "4", "-l", "INFO"]
+
+  # Links, checks and routes payments: plain code, no model, so one small pool is plenty.
+  worker-checker:
+    <<: *app
+    command: ["celery", "-A", "app.workers.celery_app", "worker", "-n", "checker@%h",
+              "-Q", "check.urgent,check.normal,check.bulk", "--pool", "threads", "-c", "2", "-l", "INFO"]
+
+volumes:
+  pgdata:

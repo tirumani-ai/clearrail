@@ -1,4 +1,4 @@
-# The ClearRail lab image: Python and the libraries. The code is mounted at run time, so you can edit a file and run it again.
+# The ClearRail lab image: Python and the libraries (step 4 adds the database, API and screen ones). The code is mounted at run time, so you can edit a file and run it again.
 FROM python:3.12-slim
 COPY --from=ghcr.io/astral-sh/uv:0.9.26 /uv /uvx /bin/
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
